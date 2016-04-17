@@ -28,7 +28,7 @@
         "test": "nodeunit tests"
     },
     "engines": {
-        "node": "0.10.x"
+        "node": "0.12.x"
     },
     "main": "./index.js"
 }
