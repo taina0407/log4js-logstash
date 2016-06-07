@@ -12,7 +12,7 @@ var util = require('util');
 function logstashLayout(logEvt, fields) {
   var messageData = logEvt.data;
   if (Array.isArray(messageData)) {
-    messageData = util.format.apply(util, Array.prototype.slice.call(messageData));
+    messageData = util.format.apply(util, messageData);
   } else {
     messageData = util.inspect(messageData);
   }
