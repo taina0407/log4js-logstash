@@ -1,11 +1,6 @@
 "use strict";
 var net = require('net');
-
-// Function to identify type of an object. 
-// Source: https://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/ 
-var toType = function (obj) {
-  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
-}
+var util = require('util');
 
 /**
  * Simple layout parser for logstash message.
@@ -15,15 +10,20 @@ var toType = function (obj) {
  * @returns {{@timestamp: string, @fields: {category: (categoryName|*), level: (levelStr|*)}}}
  */
 function logstashLayout(logEvt, fields) {
-  var messageData = logEvt.data[0],
-    log = {
-      '@timestamp': (new Date()).toISOString(),
-      '@fields': {
-        category: logEvt.categoryName,
-        level: logEvt.level.levelStr
-      },
-      '@message': (toType(messageData) === "string") ? messageData : JSON.stringify(messageData)
-    }
+  var messageData = logEvt.data;
+  if (Array.isArray(messageData)) {
+    messageData = util.format.apply(util, Array.prototype.slice.call(messageData));
+  } else {
+    messageData = util.inspect(messageData);
+  }
+  var log = {
+    '@timestamp': (new Date()).toISOString(),
+    '@fields': {
+      category: logEvt.categoryName,
+      level: logEvt.level.levelStr
+    },
+    '@message': messageData
+  };
 
   for (var key in fields) {
     if (typeof fields[key] !== 'function') {
